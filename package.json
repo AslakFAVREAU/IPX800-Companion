@@ -1,0 +1,12 @@
+{
+  "name": "ipx800",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "Control relays of GCE IPX800 V5 via HTTP API.",
+  "author": "Aslak Favreau",
+  "license": "MIT",
+  "dependencies": {
+    "@companion-module/base": "^3.0.0",
+    "node-fetch": "^2.6.7"
+  }
+}

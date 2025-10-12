@@ -1,0 +1,37 @@
+{
+  "id": "ipx800",
+  "name": "ipx800",
+  "shortname": "ipx",
+  "description": "Companion module for GCE IPX800 V5 (relay control, feedback, automation).",
+  "version": "1.0.0",
+  "license": "MIT",
+  "repository": "git+https://github.com/AslakFAVREAU/IPX800-Companion.git",
+  "bugs": "https://github.com/AslakFAVREAU/IPX800-Companion.git",
+  "maintainers": [
+    {
+      "name": "Aslak Favreau",
+      "email": "aslak@evenement-soe.com"
+    }
+  ],
+  "legacyIds": [
+    "ipx800"
+  ],
+  "runtime": {
+    "type": "node18",
+    "api": "nodejs-ipc",
+    "apiVersion": "1.0.0",
+    "entrypoint": "../index.js"
+  },
+  "manufacturer": "GCE Electronics",
+  "products": [
+    "IPX800 V5"
+  ],
+  "keywords": [
+    "ipx800",
+    "gce",
+    "relay",
+    "automation",
+    "http",
+    "remote control"
+  ]
+}
