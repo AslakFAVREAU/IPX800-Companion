@@ -38,22 +38,32 @@ Before using the module, configure it in Companion:
 
 ## 🎨 Visual Feedback
 
-The module provides **real-time feedback** with three types:
+The module provides **real-time feedback** with two types:
 
-### 1. Relay State
-- **Red** when the state **does not match** expected value
-- **Default color** when the state **matches** expected value
-- Compare actual state with ON/OFF selection
+### 1. Relay Status (Recommended)
+- **Red background** when relay is **ON** (active)
+- **Default button color** (usually black/dark) when relay is **OFF** (inactive)
+- **Simple and intuitive**: Just select the relay from dropdown
+- **Perfect for status indication**: Clearly shows active relays
 
-### 2. Relay ON
-- **Green** when relay is **active** (ON)
-- Gray when relay is inactive
+### 2. Relay State Comparison
+- **Green background** when actual state **matches** expected state
+- **Default button color** when actual state **does not match** expected state
+- **Advanced usage**: Compare actual state with ON/OFF selection
+- **Useful for validation**: Verify commands were executed correctly
 
-### 3. Relay OFF
-- **Gray** when relay is **inactive** (OFF)
-- Default when relay is active
+### How Feedbacks Work in Companion
 
-All feedbacks automatically query the IPX800 to display real-time status.
+**Important**: In Companion, feedbacks work as follows:
+- When callback returns `true` → Apply the colored style
+- When callback returns `false` → Keep default button appearance
+
+**Example Setup**:
+1. Create a button with black background (default style)
+2. Add "Relay Status" feedback
+3. **Result**: Button turns red when relay is ON, stays black when OFF
+
+All feedbacks automatically query the IPX800 every few seconds to display real-time status.
 
 ---
 
@@ -105,6 +115,21 @@ Use the dropdown selections instead of manual ID entry.
 3. **Wait** for automatic relay detection (check logs)
 4. **Create actions** using the dropdown relay selections
 5. **Add feedbacks** for visual status indication
+
+### Quick Setup Example
+
+**Creating a Relay Control Button**:
+1. Create a new button in Companion
+2. Set button style: Black background, white text
+3. Add Action: "Relay Control" → Select relay → Set to "ON" 
+4. Add Feedback: "Relay Status" → Select same relay
+5. **Result**: Button turns red when relay is ON, black when OFF
+
+**Creating a Toggle Button**:
+1. Create a new button
+2. Add Action: "Relay Toggle" → Select relay
+3. Add Feedback: "Relay Status" → Select same relay
+4. **Result**: One button to toggle AND see current status
 
 ---
 

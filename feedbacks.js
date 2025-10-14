@@ -29,13 +29,59 @@ module.exports = async function (self) {
 
 	// Fonction pour obtenir les définitions de feedbacks
 	const getFeedbackDefinitions = () => ({
+		relay_status: {
+			name: 'Relay Status (Red=ON, Black=OFF)',
+			type: 'boolean',
+			label: 'Relay Status',
+			defaultStyle: {
+				bgcolor: combineRgb(255, 0, 0), // Rouge quand relais ON
+				color: combineRgb(255, 255, 255), // Texte blanc
+			},
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Relay',
+					id: 'relay',
+					default: '65536',
+					choices: relayChoices,
+					minChoicesForSearch: 0,
+				},
+			],
+			callback: async (feedback) => {
+				// Retourne true si le relais est ON (applique le style rouge)
+				// Retourne false si le relais est OFF (garde le style par défaut du bouton - noir)
+				try {
+					if (!self.config || !self.config.host || !self.config.apiKey) {
+						return false
+					}
+
+					const fetch = require('node-fetch')
+					const relayId = feedback.options.relay
+					const url = `http://${self.config.host}/api/core/io/${relayId}?ApiKey=${self.config.apiKey}`
+
+					const response = await fetch(url, { 
+						method: 'GET',
+						timeout: 2000
+					})
+
+					if (response.ok) {
+						const data = await response.json()
+						// Retourne true si le relais est ON (affichage rouge)
+						return data.on === true
+					}
+				} catch (error) {
+					self.log('debug', `Erreur lors de la vérification de l'état du relais ${feedback.options.relay}: ${error.message}`)
+				}
+				return false // Par défaut, considère le relais comme OFF
+			},
+		},
 		relay_state: {
-			name: 'Relay State',
+			name: 'Relay State Comparison',
 			type: 'boolean',
 			label: 'Relay State',
 			defaultStyle: {
-				bgcolor: combineRgb(255, 0, 0),
-				color: combineRgb(255, 255, 255),
+				bgcolor: combineRgb(0, 255, 0), // Vert quand état correspond
+				color: combineRgb(0, 0, 0),
 			},
 			options: [
 				{
@@ -49,7 +95,7 @@ module.exports = async function (self) {
 				{
 					id: 'state',
 					type: 'dropdown',
-					label: 'State',
+					label: 'Expected State',
 					default: 'on',
 					choices: [
 						{ id: 'on', label: 'ON' },
@@ -58,7 +104,7 @@ module.exports = async function (self) {
 				},
 			],
 			callback: async (feedback) => {
-				// Vérifier l'état du relais en interrogeant l'IPX800
+				// Retourne true si l'état actuel correspond à l'état attendu
 				try {
 					if (!self.config || !self.config.host || !self.config.apiKey) {
 						return false
@@ -71,7 +117,7 @@ module.exports = async function (self) {
 
 					const response = await fetch(url, { 
 						method: 'GET',
-						timeout: 2000 // Timeout court pour les feedbacks
+						timeout: 2000
 					})
 
 					if (response.ok) {
@@ -81,92 +127,6 @@ module.exports = async function (self) {
 					}
 				} catch (error) {
 					self.log('debug', `Erreur lors de la vérification de l'état du relais ${feedback.options.relay}: ${error.message}`)
-				}
-				return false
-			},
-		},
-		relay_on: {
-			name: 'Relay ON (Green when active)',
-			type: 'boolean',
-			label: 'Relay ON',
-			defaultStyle: {
-				bgcolor: combineRgb(0, 255, 0),
-				color: combineRgb(0, 0, 0),
-			},
-			options: [
-				{
-					type: 'dropdown',
-					label: 'Relay',
-					id: 'relay',
-					default: '65536',
-					choices: relayChoices,
-					minChoicesForSearch: 0,
-				},
-			],
-			callback: async (feedback) => {
-				try {
-					if (!self.config || !self.config.host || !self.config.apiKey) {
-						return false
-					}
-
-					const fetch = require('node-fetch')
-					const relayId = feedback.options.relay
-					const url = `http://${self.config.host}/api/core/io/${relayId}?ApiKey=${self.config.apiKey}`
-
-					const response = await fetch(url, { 
-						method: 'GET',
-						timeout: 2000
-					})
-
-					if (response.ok) {
-						const data = await response.json()
-						return data.on === true
-					}
-				} catch (error) {
-					self.log('debug', `Erreur lors de la vérification de l'état ON du relais ${feedback.options.relay}: ${error.message}`)
-				}
-				return false
-			},
-		},
-		relay_off: {
-			name: 'Relay OFF (Red when inactive)',
-			type: 'boolean',
-			label: 'Relay OFF',
-			defaultStyle: {
-				bgcolor: combineRgb(128, 128, 128),
-				color: combineRgb(255, 255, 255),
-			},
-			options: [
-				{
-					type: 'dropdown',
-					label: 'Relay',
-					id: 'relay',
-					default: '65536',
-					choices: relayChoices,
-					minChoicesForSearch: 0,
-				},
-			],
-			callback: async (feedback) => {
-				try {
-					if (!self.config || !self.config.host || !self.config.apiKey) {
-						return false
-					}
-
-					const fetch = require('node-fetch')
-					const relayId = feedback.options.relay
-					const url = `http://${self.config.host}/api/core/io/${relayId}?ApiKey=${self.config.apiKey}`
-
-					const response = await fetch(url, { 
-						method: 'GET',
-						timeout: 2000
-					})
-
-					if (response.ok) {
-						const data = await response.json()
-						return data.on === false
-					}
-				} catch (error) {
-					self.log('debug', `Erreur lors de la vérification de l'état OFF du relais ${feedback.options.relay}: ${error.message}`)
 				}
 				return false
 			},
