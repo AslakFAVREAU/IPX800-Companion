@@ -1,6 +1,12 @@
 const { combineRgb } = require('@companion-module/base')
 
 module.exports = async function (self) {
+	// Vérification que self existe et a les méthodes nécessaires
+	if (!self || typeof self.setFeedbackDefinitions !== 'function') {
+		console.error('Invalid self object passed to feedbacks module')
+		return
+	}
+
 	self.setFeedbackDefinitions({
 		relay_state: {
 			name: 'Relay State',

@@ -1,4 +1,10 @@
 module.exports = function (self) {
+	// Vérification que self existe et a les méthodes nécessaires
+	if (!self || typeof self.setVariableDefinitions !== 'function') {
+		console.error('Invalid self object passed to variables module')
+		return
+	}
+
 	// Generate variables for each relay (1-32)
 	const variables = []
 	
@@ -18,9 +24,13 @@ module.exports = function (self) {
 
 	self.setVariableDefinitions(variables)
 	
-	// Set initial values
-	self.setVariableValues({
-		connection_status: 'Connected',
-		ipx800_host: self.config.host || 'Not configured',
-	})
+	// Set initial values avec protection
+	try {
+		self.setVariableValues({
+			connection_status: 'Disconnected',
+			ipx800_host: (self.config && self.config.host) ? self.config.host : 'Not configured',
+		})
+	} catch (error) {
+		console.error('Error setting variable values:', error)
+	}
 }

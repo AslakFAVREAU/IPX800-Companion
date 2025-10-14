@@ -13,13 +13,11 @@
       "email": "aslak@evenement-soe.com"
     }
   ],
-  "legacyIds": [
-    "ipx800"
-  ],
+  "legacyIds": [],
   "runtime": {
     "type": "node18",
     "api": "nodejs-ipc",
-    "apiVersion": "1.0.0",
+    "apiVersion": "1.13.0",
     "entrypoint": "../main.js"
   },
   "manufacturer": "GCE Electronics",
