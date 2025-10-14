@@ -95,6 +95,26 @@ These are automatically updated when actions are executed.
 
 ---
 
+## 🟢 Automatic Relay State Tracking
+
+After every relay command (ON, OFF, or TOGGLE), the module automatically queries the IPX800 for the real relay state and updates the variable:
+
+- `$(ipx800v5:relay_65536_state)` will be set to `ON` or `OFF` based on the actual hardware status
+- This ensures feedbacks and variables always reflect the true state
+
+**On module startup:**
+- The module queries all detected relays and initializes their state variables
+- You always start with the real status of each relay
+
+**Example:**
+- You send a command to turn Relay 1 ON
+- The module sends the command, then immediately checks the relay status
+- Variable `relay_65536_state` is updated to `ON` if the hardware confirms
+
+This guarantees that Companion always displays the real status, even if the hardware state changes outside Companion.
+
+---
+
 ## 🛠 Relay ID Examples
 
 The module automatically detects available relays, typically:

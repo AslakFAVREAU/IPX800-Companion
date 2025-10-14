@@ -55,9 +55,43 @@ class ModuleInstance extends InstanceBase {
 		// Test de connexion
 		await this.testConnection()
 
+		// Initialiser les variables d'état des relais
+		await this.initRelayStates()
+
 		this.updateActions() // export actions
 		this.updateFeedbacks() // export feedbacks
 		this.updateVariableDefinitions() // export variable definitions
+	}
+
+	// Nouvelle fonction pour initialiser les variables d'état des relais
+	async initRelayStates() {
+		try {
+			const fetch = require('node-fetch')
+			const url = `http://${this.config.host}/api/core/io?ApiKey=${this.config.apiKey}`
+			this.log('info', `Récupération des états des relais: ${url}`)
+			const response = await fetch(url, { method: 'GET', timeout: 5000 })
+			if (response.ok) {
+				const data = await response.json()
+				// Filtrer pour ne garder que les relais de commande
+				const relays = data.filter(item => {
+					const name = (item.name || '').toLowerCase()
+					return name.includes('relay cmd') || name.includes('relay command') || (name.includes('relay') && !name.includes('state') && !name.includes('input'))
+				})
+				let relayVars = {}
+				relays.forEach(relay => {
+					relayVars[`relay_${relay._id}_state`] = relay.on ? 'ON' : 'OFF'
+					relayVars[`relay_${relay._id}_raw`] = JSON.stringify(relay)
+				})
+				if (this.setVariableValues) {
+					this.setVariableValues(relayVars)
+				}
+				this.log('info', `Variables d'état des relais initialisées: ${Object.keys(relayVars).length} relais`)
+			} else {
+				this.log('warn', `Impossible de récupérer la liste des relais: ${response.status}`)
+			}
+		} catch (error) {
+			this.log('error', `Erreur lors de l'initialisation des états relais: ${error.message}`)
+		}
 	}
 
 	// When module gets deleted
