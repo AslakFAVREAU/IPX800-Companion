@@ -14,17 +14,38 @@ module.exports = function (self) {
 		return
 	}
 
-	self.setActionDefinitions({
+	// Initialiser les choix de relais par défaut
+	let relayChoices = [
+		{ id: '65536', label: 'Chargement des relais...' }
+	]
+
+	// Fonction pour mettre à jour la liste des relais
+	const updateRelayChoices = async () => {
+		try {
+			const relays = await self.getRelayList()
+			if (relays.length > 0) {
+				relayChoices = relays
+				// Mettre à jour les définitions d'actions avec les nouvelles options
+				self.setActionDefinitions(getActionDefinitions())
+				self.log('info', `Liste des relais mise à jour: ${relays.length} relais trouvés`)
+			}
+		} catch (error) {
+			self.log('error', `Erreur lors de la mise à jour des relais: ${error.message}`)
+		}
+	}
+
+	// Fonction pour obtenir les définitions d'actions
+	const getActionDefinitions = () => ({
 		relay_control: {
 			name: 'Relay ON/OFF',
 			options: [
 				{
-					type: 'number',
-					label: 'Relay Number',
+					type: 'dropdown',
+					label: 'Relay',
 					id: 'relay',
-					min: 1,
-					max: 500000,
-					default: 65536,
+					default: '65536',
+					choices: relayChoices,
+					minChoicesForSearch: 0,
 				},
 				{
 					type: 'dropdown',
@@ -96,12 +117,12 @@ module.exports = function (self) {
 			name: 'Relay Toggle',
 			options: [
 				{
-					type: 'number',
-					label: 'Relay Number',
+					type: 'dropdown',
+					label: 'Relay',
 					id: 'relay',
-					min: 1,
-					max: 99999,
-					default: 1,
+					default: '65536',
+					choices: relayChoices,
+					minChoicesForSearch: 0,
 				},
 			],
 			callback: async (event) => {
@@ -397,4 +418,10 @@ module.exports = function (self) {
 			},
 		},
 	})
+
+	// Initialiser les définitions d'actions avec les choix par défaut
+	self.setActionDefinitions(getActionDefinitions())
+	
+	// Charger la liste des relais de manière asynchrone
+	updateRelayChoices()
 }

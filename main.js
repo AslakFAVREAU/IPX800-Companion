@@ -131,6 +131,47 @@ class ModuleInstance extends InstanceBase {
 		]
 	}
 
+	async getRelayList() {
+		try {
+			if (!this.config || !this.config.host || !this.config.apiKey) {
+				this.log('warn', 'Configuration incomplète pour récupérer la liste des relais')
+				return []
+			}
+
+			const fetch = require('node-fetch')
+			const url = `http://${this.config.host}/api/core/io?ApiKey=${this.config.apiKey}`
+			
+			this.log('debug', `Récupération de la liste des relais: ${url}`)
+			
+			const response = await fetch(url, { 
+				method: 'GET',
+				timeout: 5000
+			})
+			
+			if (response.ok) {
+				const data = await response.json()
+				this.log('debug', `Liste des I/O récupérée: ${data.length} éléments`)
+				
+				// Filtrer pour ne garder que les relais et formater pour la liste déroulante
+				const relays = data
+					.filter(item => item.type && item.type.toLowerCase().includes('relay'))
+					.map(relay => ({
+						id: relay._id,
+						label: `${relay.name || `Relay ${relay._id}`} (ID: ${relay._id})`
+					}))
+				
+				this.log('info', `${relays.length} relais trouvés`)
+				return relays
+			} else {
+				this.log('warn', `Erreur lors de la récupération des relais: ${response.status}`)
+				return []
+			}
+		} catch (error) {
+			this.log('error', `Erreur lors de la récupération des relais: ${error.message}`)
+			return []
+		}
+	}
+
 	async testConnection() {
 		try {
 			// Vérification des prérequis
