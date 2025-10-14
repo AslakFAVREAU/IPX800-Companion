@@ -67,6 +67,34 @@ All feedbacks automatically query the IPX800 every few seconds to display real-t
 
 ---
 
+## ⚡️ How Feedbacks Work (Technical)
+
+- The module keeps a local copy of all relay states (`relayStates`) in memory.
+- Every 500ms, it polls the IPX800 API to update these states.
+- When you use a feedback on a button, the callback instantly checks the local state (no HTTP request).
+- After each polling, Companion automatically refreshes all feedbacks for instant display.
+- This structure is inspired by the ATEM module for maximum reliability and performance.
+
+**Advantages:**
+- Instant button color change when relay state changes
+- No network lag or overload
+- Always synchronized with hardware, even if relays change outside Companion
+
+---
+
+## 🧑‍💻 User Guide: Setting Up Reliable Feedbacks
+
+1. **Add a button in Companion**
+2. **Add a feedback (Relay Status or Relay State Comparison)**
+3. **Select the relay from the dropdown**
+4. **Result:**
+   - Button color changes instantly when the relay state changes (red for ON, black for OFF)
+   - No need to configure polling or refresh: everything is automatic
+
+**Tip:** You can use multiple feedbacks on different buttons, all will update in real time as the hardware changes.
+
+---
+
 ## 🔄 Dynamic Features
 
 ### Automatic Relay Detection

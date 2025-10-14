@@ -1,41 +1,47 @@
 const { combineRgb } = require('@companion-module/base')
 
 module.exports = async function (self) {
-	// Vérification que self existe et a les méthodes nécessaires
-	if (!self || typeof self.setFeedbackDefinitions !== 'function') {
-		console.error('Invalid self object passed to feedbacks module')
-		return
-	}
+	// Stockage local des états des relais
+	self.relayStates = {}
 
-	// Initialiser les choix de relais par défaut
-	let relayChoices = [
-		{ id: '65536', label: 'Chargement des relais...' }
-	]
-
-	// Fonction pour mettre à jour la liste des relais
-	const updateRelayChoices = async () => {
+	// Fonction pour mettre à jour les états des relais depuis l'IPX800
+	async function pollRelayStates() {
 		try {
-			const relays = await self.getRelayList()
-			if (relays.length > 0) {
-				relayChoices = relays
-				// Mettre à jour les définitions de feedbacks avec les nouvelles options
-				self.setFeedbackDefinitions(getFeedbackDefinitions())
-				self.log('info', `Liste des relais mise à jour pour les feedbacks: ${relays.length} relais trouvés`)
+			if (!self.config || !self.config.host || !self.config.apiKey) return
+			const fetch = require('node-fetch')
+			const url = `http://${self.config.host}/api/core/io?ApiKey=${self.config.apiKey}`
+			const response = await fetch(url, { method: 'GET', timeout: 2000 })
+			if (response.ok) {
+				const data = await response.json()
+				const relays = data.filter(item => {
+					const name = (item.name || '').toLowerCase()
+					return name.includes('relay cmd') || name.includes('relay command') || (name.includes('relay') && !name.includes('state') && !name.includes('input'))
+				})
+				relays.forEach(relay => {
+					self.relayStates[relay._id] = relay.on ? 'ON' : 'OFF'
+				})
+				self.checkFeedbacks && self.checkFeedbacks()
 			}
 		} catch (error) {
-			self.log('error', `Erreur lors de la mise à jour des relais pour les feedbacks: ${error.message}`)
+			self.log('debug', `Polling error: ${error.message}`)
 		}
 	}
 
-	// Fonction pour obtenir les définitions de feedbacks
-	const getFeedbackDefinitions = () => ({
+	// Polling régulier toutes les 500ms
+	if (!self._relayPollInterval) {
+		self._relayPollInterval = setInterval(pollRelayStates, 500)
+	}
+	await pollRelayStates()
+
+	// Feedbacks utilisant l'état local
+	self.setFeedbackDefinitions({
 		relay_status: {
 			name: 'Relay Status (Red=ON, Black=OFF)',
 			type: 'boolean',
 			label: 'Relay Status',
 			defaultStyle: {
-				bgcolor: combineRgb(255, 0, 0), // Rouge quand relais ON
-				color: combineRgb(255, 255, 255), // Texte blanc
+				bgcolor: combineRgb(255, 0, 0),
+				color: combineRgb(255, 255, 255),
 			},
 			options: [
 				{
@@ -43,36 +49,13 @@ module.exports = async function (self) {
 					label: 'Relay',
 					id: 'relay',
 					default: '65536',
-					choices: relayChoices,
+					choices: Object.keys(self.relayStates).map(id => ({ id, label: `Relay ${id}` })),
 					minChoicesForSearch: 0,
 				},
 			],
-			callback: async (feedback) => {
-				// Retourne true si le relais est ON (applique le style rouge)
-				// Retourne false si le relais est OFF (garde le style par défaut du bouton - noir)
-				try {
-					if (!self.config || !self.config.host || !self.config.apiKey) {
-						return false
-					}
-
-					const fetch = require('node-fetch')
-					const relayId = feedback.options.relay
-					const url = `http://${self.config.host}/api/core/io/${relayId}?ApiKey=${self.config.apiKey}`
-
-					const response = await fetch(url, { 
-						method: 'GET',
-						timeout: 2000
-					})
-
-					if (response.ok) {
-						const data = await response.json()
-						// Retourne true si le relais est ON (affichage rouge)
-						return data.on === true
-					}
-				} catch (error) {
-					self.log('debug', `Erreur lors de la vérification de l'état du relais ${feedback.options.relay}: ${error.message}`)
-				}
-				return false // Par défaut, considère le relais comme OFF
+			callback: (feedback) => {
+				const relayId = feedback.options.relay
+				return self.relayStates[relayId] === 'ON'
 			},
 		},
 		relay_state: {
@@ -80,7 +63,7 @@ module.exports = async function (self) {
 			type: 'boolean',
 			label: 'Relay State',
 			defaultStyle: {
-				bgcolor: combineRgb(0, 255, 0), // Vert quand état correspond
+				bgcolor: combineRgb(0, 255, 0),
 				color: combineRgb(0, 0, 0),
 			},
 			options: [
@@ -89,7 +72,7 @@ module.exports = async function (self) {
 					label: 'Relay',
 					id: 'relay',
 					default: '65536',
-					choices: relayChoices,
+					choices: Object.keys(self.relayStates).map(id => ({ id, label: `Relay ${id}` })),
 					minChoicesForSearch: 0,
 				},
 				{
@@ -103,39 +86,11 @@ module.exports = async function (self) {
 					],
 				},
 			],
-			callback: async (feedback) => {
-				// Retourne true si l'état actuel correspond à l'état attendu
-				try {
-					if (!self.config || !self.config.host || !self.config.apiKey) {
-						return false
-					}
-
-					const fetch = require('node-fetch')
-					const relayId = feedback.options.relay
-					const expectedState = feedback.options.state
-					const url = `http://${self.config.host}/api/core/io/${relayId}?ApiKey=${self.config.apiKey}`
-
-					const response = await fetch(url, { 
-						method: 'GET',
-						timeout: 2000
-					})
-
-					if (response.ok) {
-						const data = await response.json()
-						const currentState = data.on ? 'on' : 'off'
-						return currentState === expectedState
-					}
-				} catch (error) {
-					self.log('debug', `Erreur lors de la vérification de l'état du relais ${feedback.options.relay}: ${error.message}`)
-				}
-				return false
+			callback: (feedback) => {
+				const relayId = feedback.options.relay
+				const expectedState = feedback.options.state === 'on' ? 'ON' : 'OFF'
+				return self.relayStates[relayId] === expectedState
 			},
 		},
 	})
-
-	// Initialiser les définitions de feedbacks avec les choix par défaut
-	self.setFeedbackDefinitions(getFeedbackDefinitions())
-	
-	// Charger la liste des relais de manière asynchrone
-	updateRelayChoices()
 }
