@@ -152,15 +152,20 @@ class ModuleInstance extends InstanceBase {
 				const data = await response.json()
 				this.log('debug', `Liste des I/O récupérée: ${data.length} éléments`)
 				
-				// Filtrer pour ne garder que les relais et formater pour la liste déroulante
+				// Filtrer pour ne garder que les relais de commande (pas les states/inputs)
 				const relays = data
-					.filter(item => item.type && item.type.toLowerCase().includes('relay'))
+					.filter(item => {
+						const name = (item.name || '').toLowerCase()
+						return name.includes('relay cmd') ||  // Relais de commande IPX
+							name.includes('relay command') ||
+							(name.includes('relay') && !name.includes('state') && !name.includes('input'))
+					})
 					.map(relay => ({
-						id: relay._id,
+						id: relay._id.toString(),
 						label: `${relay.name || `Relay ${relay._id}`} (ID: ${relay._id})`
 					}))
 				
-				this.log('info', `${relays.length} relais trouvés`)
+				this.log('info', `${relays.length} relais de commande trouvés`)
 				return relays
 			} else {
 				this.log('warn', `Erreur lors de la récupération des relais: ${response.status}`)
