@@ -2,6 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+// Lire la version depuis manifest.json
+const manifestPath = path.join(__dirname, 'companion', 'manifest.json');
+const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+const VERSION = manifest.version;
+
 // Créer le dossier pkg
 const pkgDir = path.join(__dirname, 'pkg');
 if (fs.existsSync(pkgDir)) {
@@ -72,9 +77,8 @@ function copyRecursiveSync(src, dest) {
 copyRecursiveSync(nodeModulesSource, nodeModulesDest);
 console.log('✅ node_modules copié');
 
-// Lire package.json pour obtenir le nom et la version
-const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
-const archiveName = `${packageJson.name}-${packageJson.version}.tgz`;
+// Utiliser la version du manifest.json pour créer l'archive
+const archiveName = `companion-module-ipx800-${VERSION}.tgz`;
 
 // Créer l'archive tar.gz avec le dossier pkg
 console.log('\nCréation de l\'archive...');
