@@ -24,8 +24,13 @@ module.exports = async function (self) {
 					id: relay._id.toString(),
 					label: `${relay.name} (id:${relay._id} / R:${index + 1})`
 				}))
-				relays.forEach(relay => {
-					self.relayStates[relay._id] = relay.on ? 'ON' : 'OFF'
+				
+				// Update relay states and variables
+				const relayVariables = {}
+				relays.forEach((relay, index) => {
+					const state = relay.on ? 'ON' : 'OFF'
+					self.relayStates[relay._id] = state
+					relayVariables[`relay_${index + 1}_state`] = state
 				})
 				
 				// Les 8 digital inputs sont aux positions 17-24 (index 16-23)
@@ -34,9 +39,17 @@ module.exports = async function (self) {
 					id: input._id.toString(),
 					label: `${input.name} (id:${input._id} / D:${index + 1})`
 				}))
-				inputs.forEach(input => {
-					self.inputStates[input._id] = input.on ? 'ON' : 'OFF'
+				
+				// Update input states and variables
+				const inputVariables = {}
+				inputs.forEach((input, index) => {
+					const state = input.on ? 'ON' : 'OFF'
+					self.inputStates[input._id] = state
+					inputVariables[`input_${index + 1}_state`] = state
 				})
+				
+				// Update all variables at once
+				self.setVariableValues({ ...relayVariables, ...inputVariables })
 				
 				self.checkFeedbacks && self.checkFeedbacks()
 			}
