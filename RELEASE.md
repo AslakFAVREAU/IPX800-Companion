@@ -1,17 +1,24 @@
 # Guide pour créer une release GitHub
 
-Ce guide explique comment créer une release GitHub avec le fichier .tgz pour permettre les mises à jour automatiques dans Companion.
+Ce guide explique comment créer une release GitHub avec le fichier .tgz pour la distribution du module Companion.
+
+## Distribution du module
+
+Votre module est configuré pour une **distribution manuelle** :
+- Les utilisateurs téléchargent le fichier `.tgz` depuis GitHub Releases
+- Ils l'importent dans Companion via "Import Module"
+- Simple et direct, sans besoin d'être dans le registry officiel
 
 ## Prérequis
 
-1. **Créer un token GitHub** :
+1. **Créer un token GitHub** (une seule fois) :
    - Allez sur https://github.com/settings/tokens
    - Cliquez sur "Generate new token" > "Generate new token (classic)"
    - Donnez un nom au token (ex: "Companion Release")
    - Cochez les permissions: **repo** (Full control of private repositories)
    - Cliquez sur "Generate token" et **copiez le token**
 
-2. **Définir le token en variable d'environnement** :
+2. **Définir le token en variable d'environnement** (à chaque session PowerShell) :
    ```powershell
    $env:GITHUB_TOKEN="votre_token_ici"
    ```
@@ -76,12 +83,16 @@ git commit -m "Release vX.X.X"
 git push
 ```
 
-## Mises à jour automatiques dans Companion
+## Distribution aux utilisateurs
 
 Une fois la release créée sur GitHub :
-1. Les utilisateurs de Companion pourront voir qu'une mise à jour est disponible
-2. Ils pourront cliquer sur "Update" pour télécharger automatiquement la nouvelle version
-3. Le module sera mis à jour sans avoir à importer manuellement le fichier .tgz
+1. **Partagez le lien** de la release : https://github.com/AslakFAVREAU/IPX800-Companion/releases
+2. Les utilisateurs **téléchargent** le fichier `.tgz`
+3. Dans Companion, ils vont dans **Connections → Import Module**
+4. Ils **sélectionnent** le fichier `.tgz` téléchargé
+5. Le module est installé et prêt à l'emploi
+
+**Note** : Pour les mises à jour, les utilisateurs doivent répéter le processus avec la nouvelle version.
 
 ## Dépannage
 
