@@ -54,7 +54,7 @@ module.exports = async function (self) {
 	// Feedbacks utilisant l'état local
 	self.setFeedbackDefinitions({
 		relay_status: {
-			name: 'Relay Status (Red=ON, Black=OFF)',
+			name: 'Relay Status (Default: Red=ON, Black=OFF)',
 			type: 'boolean',
 			label: 'Relay Status',
 			defaultStyle: {
@@ -76,6 +76,8 @@ module.exports = async function (self) {
 				return self.relayStates[relayId] === 'ON'
 			},
 		},
+		// Feedbacks de comparaison commentés (non visibles pour les utilisateurs)
+		/*
 		relay_state: {
 			name: 'Relay State Comparison',
 			type: 'boolean',
@@ -110,8 +112,9 @@ module.exports = async function (self) {
 				return self.relayStates[relayId] === expectedState
 			},
 		},
+		*/
 		input_status: {
-			name: 'Digital Input Status (Blue=ON, Black=OFF)',
+			name: 'Digital Input Status (Default: Blue=ON, Black=OFF)',
 			type: 'boolean',
 			label: 'Input Status',
 			defaultStyle: {
@@ -133,6 +136,7 @@ module.exports = async function (self) {
 				return self.inputStates[inputId] === 'ON'
 			},
 		},
+		/*
 		input_state: {
 			name: 'Digital Input State Comparison',
 			type: 'boolean',
@@ -167,5 +171,6 @@ module.exports = async function (self) {
 				return self.inputStates[inputId] === expectedState
 			},
 		},
+		*/
 	})
 }

@@ -254,7 +254,15 @@ module.exports = function (self) {
 					}
 				}
 				
-				self.log('error', 'Aucun endpoint n\'a fonctionné')
+								self.log('error', 'Aucun endpoint n\'a fonctionné')
+			},
+		},
+		// Actions de diagnostic commentées (non visibles pour les utilisateurs)
+		/*
+		get_io_list: {
+			name: 'Get IO List',
+			options: [],
+			callback: async (event) => {
 			},
 		},
 		ping_test: {
@@ -384,6 +392,7 @@ module.exports = function (self) {
 				}
 			},
 		},
+		*/
 	})
 
 	// Initialiser les définitions d'actions avec les choix par défaut
