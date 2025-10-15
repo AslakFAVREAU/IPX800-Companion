@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const readline = require('readline');
 
 // Configuration
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
@@ -10,31 +11,22 @@ const REPO_NAME = 'IPX800-Companion';
 // Lire la version depuis manifest.json
 const manifestPath = path.join(__dirname, 'companion', 'manifest.json');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-const VERSION = manifest.version;
-const TAG_NAME = `v${VERSION}`;
+const CURRENT_VERSION = manifest.version;
 
-// Nom du fichier .tgz à uploader
-const TGZ_FILE = `companion-module-ipx800-${VERSION}.tgz`;
-const TGZ_PATH = path.join(__dirname, TGZ_FILE);
+// Interface de saisie utilisateur
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
 
-if (!GITHUB_TOKEN) {
-    console.error('❌ Erreur: GITHUB_TOKEN non défini');
-    console.log('\nPour créer un token GitHub:');
-    console.log('1. Allez sur https://github.com/settings/tokens');
-    console.log('2. Cliquez sur "Generate new token" > "Generate new token (classic)"');
-    console.log('3. Donnez un nom au token (ex: "Companion Release")');
-    console.log('4. Cochez les permissions: "repo" (Full control of private repositories)');
-    console.log('5. Cliquez sur "Generate token" et copiez le token');
-    console.log('\nPuis définissez la variable d\'environnement:');
-    console.log('$env:GITHUB_TOKEN="votre_token_ici"');
-    process.exit(1);
+function askQuestion(query) {
+    return new Promise(resolve => rl.question(query, resolve));
 }
 
-if (!fs.existsSync(TGZ_PATH)) {
-    console.error(`❌ Erreur: Le fichier ${TGZ_FILE} n'existe pas`);
-    console.log('Exécutez d\'abord: node create-companion-package.js');
-    process.exit(1);
-}
+let VERSION = '';
+let TAG_NAME = '';
+let TGZ_FILE = '';
+let TGZ_PATH = '';
 
 // Fonction pour faire une requête HTTPS
 function makeRequest(options, data = null) {
@@ -99,12 +91,22 @@ function uploadAsset(uploadUrl, filePath) {
 
 async function createRelease() {
     try {
-        console.log(`📦 Création de la release ${TAG_NAME}...`);
+        console.log(`\n📦 Version actuelle dans manifest.json: ${CURRENT_VERSION}`);
+        console.log(`📦 Version de la release à créer: ${VERSION}\n`);
+        
+        const confirm = await askQuestion(`Voulez-vous créer la release ${TAG_NAME} ? (oui/non): `);
+        if (confirm.toLowerCase() !== 'oui' && confirm.toLowerCase() !== 'o') {
+            console.log('❌ Création de la release annulée.');
+            rl.close();
+            process.exit(0);
+        }
+        
+        console.log(`\n📦 Création de la release ${TAG_NAME}...`);
         
         // Créer la release
         const releaseData = JSON.stringify({
             tag_name: TAG_NAME,
-            name: `Release ${TAG_NAME}`,
+            name: `${TAG_NAME}`,
             body: `## Changes in ${TAG_NAME}\n\n- Simplified documentation (removed icons and AI-generated tone)\n- GitHub integration for automatic updates\n- Improved clarity in HELP.md and README.md\n\n## Installation\n\nDownload the \`${TGZ_FILE}\` file and import it into Companion.`,
             draft: false,
             prerelease: false
@@ -133,14 +135,59 @@ async function createRelease() {
         console.log('\n🎉 Release créée avec succès!');
         console.log(`\nLien de la release: ${release.html_url}`);
         console.log(`\nMaintenant, dans Companion, vous pourrez:`);
-        console.log(`1. Aller dans les paramètres du module`);
-        console.log(`2. Vérifier les mises à jour`);
-        console.log(`3. Télécharger automatiquement la nouvelle version`);
+        console.log(`1. Télécharger le fichier .tgz depuis GitHub Releases`);
+        console.log(`2. L'importer dans Companion via "Import Module"`);
+        console.log(`3. Le module sera installé avec la version ${VERSION}`);
+        
+        rl.close();
         
     } catch (error) {
         console.error('❌ Erreur:', error.message);
+        rl.close();
         process.exit(1);
     }
 }
 
-createRelease();
+async function main() {
+    console.log('=== Création d\'une release GitHub pour IPX800-Companion ===\n');
+    console.log(`📋 Version actuelle dans manifest.json: ${CURRENT_VERSION}`);
+    
+    const newVersion = await askQuestion(`\n🔢 Quelle version voulez-vous publier ? (exemple: 1.0.4): `);
+    
+    if (!newVersion || !newVersion.match(/^\d+\.\d+\.\d+$/)) {
+        console.error('❌ Format de version invalide. Utilisez le format X.Y.Z (exemple: 1.0.4)');
+        rl.close();
+        process.exit(1);
+    }
+    
+    VERSION = newVersion.trim();
+    TAG_NAME = `${VERSION}`;
+    TGZ_FILE = `companion-module-ipx800-${VERSION}.tgz`;
+    TGZ_PATH = path.join(__dirname, TGZ_FILE);
+    
+    if (!GITHUB_TOKEN) {
+        console.error('\n❌ Erreur: GITHUB_TOKEN non défini');
+        console.log('\nPour créer un token GitHub:');
+        console.log('1. Allez sur https://github.com/settings/tokens');
+        console.log('2. Cliquez sur "Generate new token" > "Generate new token (classic)"');
+        console.log('3. Donnez un nom au token (ex: "Companion Release")');
+        console.log('4. Cochez les permissions: "repo" (Full control of private repositories)');
+        console.log('5. Cliquez sur "Generate token" et copiez le token');
+        console.log('\nPuis définissez la variable d\'environnement:');
+        console.log('$env:GITHUB_TOKEN="votre_token_ici"');
+        rl.close();
+        process.exit(1);
+    }
+    
+    if (!fs.existsSync(TGZ_PATH)) {
+        console.error(`\n❌ Erreur: Le fichier ${TGZ_FILE} n'existe pas`);
+        console.log('Exécutez d\'abord: node create-companion-package.js');
+        console.log(`Assurez-vous que la version dans companion/manifest.json est bien ${VERSION}`);
+        rl.close();
+        process.exit(1);
+    }
+    
+    await createRelease();
+}
+
+main();
