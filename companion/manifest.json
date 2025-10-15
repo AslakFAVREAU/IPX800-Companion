@@ -3,10 +3,11 @@
   "name": "ipx800",
   "shortname": "ipx",
   "description": "Companion module for GCE IPX800 V5 (relay control, feedback, automation).",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "repository": "git+https://github.com/AslakFAVREAU/IPX800-Companion.git",
-  "bugs": "https://github.com/AslakFAVREAU/IPX800-Companion.git",
+  "bugs": "https://github.com/AslakFAVREAU/IPX800-Companion/issues",
+  "homepage": "https://github.com/AslakFAVREAU/IPX800-Companion",
   "maintainers": [
     {
       "name": "Aslak Favreau",
