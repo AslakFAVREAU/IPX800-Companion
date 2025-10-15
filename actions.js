@@ -204,6 +204,7 @@ module.exports = function (self) {
 		get_io_list: {
 			name: 'Get IO List',
 			options: [],
+			isVisible: false, // Action de debug cachée
 			callback: async (event) => {
 				// Vérification de la configuration
 				if (!self.config || !self.config.host || !self.config.apiKey) {
@@ -255,78 +256,10 @@ module.exports = function (self) {
 				self.log('error', 'Aucun endpoint n\'a fonctionné')
 			},
 		},
-		test_relay_formats: {
-			name: 'Test Relay ON/OFF Formats',
-			options: [
-				{
-					type: 'number',
-					label: 'Relay Number',
-					id: 'relay',
-					min: 1,
-					max: 99999,
-					default: 65536,
-				},
-			],
-			callback: async (event) => {
-				// Vérification de la configuration
-				if (!self.config || !self.config.host || !self.config.apiKey) {
-					self.log('warn', 'Configuration manquante - impossible de tester')
-					return
-				}
-
-				const { relay } = event.options
-				const url = `http://${self.config.host}/api/core/io/${relay}?ApiKey=${self.config.apiKey}`
-
-				// Test de différents formats pour ON
-				const testFormats = [
-					{ name: 'Format 1: {"on": true}', body: { "on": true } },
-					{ name: 'Format 2: {"state": "on"}', body: { "state": "on" } },
-					{ name: 'Format 3: {"state": 1}', body: { "state": 1 } },
-					{ name: 'Format 4: {"value": 1}', body: { "value": 1 } },
-					{ name: 'Format 5: {"set": true}', body: { "set": true } },
-					{ name: 'Format 6: {"enable": true}', body: { "enable": true } },
-					{ name: 'Format 7: {"action": "on"}', body: { "action": "on" } },
-					{ name: 'Format 8: true', body: true },
-					{ name: 'Format 9: 1', body: 1 }
-				]
-
-				self.log('info', `=== Test des formats ON pour le relais ${relay} ===`)
-
-				for (const format of testFormats) {
-					try {
-						self.log('info', `Test ${format.name}`)
-						self.log('debug', `Body: ${JSON.stringify(format.body)}`)
-
-						const res = await fetch(url, {
-							method: 'PUT',
-							headers: {
-								'Content-Type': 'application/json'
-							},
-							body: JSON.stringify(format.body)
-						})
-
-						self.log('info', `${format.name}: ${res.status} ${res.statusText}`)
-
-						if (res.ok) {
-							const data = await res.text()
-							self.log('info', `✅ ${format.name} - SUCCÈS ! Response: ${data}`)
-						} else {
-							const errorData = await res.text()
-							self.log('debug', `❌ ${format.name} failed: ${errorData.substring(0, 100)}`)
-						}
-
-						// Petit délai entre les tests
-						await new Promise(resolve => setTimeout(resolve, 500))
-
-					} catch (err) {
-						self.log('error', `${format.name} error: ${err.message}`)
-					}
-				}
-			},
-		},
 		ping_test: {
 			name: 'Ping Test (No Auth)',
 			options: [],
+			isVisible: false, // Action de debug cachée
 			callback: async (event) => {
 				// Vérification de la configuration
 				if (!self.config || !self.config.host) {
@@ -374,6 +307,7 @@ module.exports = function (self) {
 		api_test: {
 			name: 'Test API Connection',
 			options: [],
+			isVisible: false, // Action de debug cachée
 			callback: async (event) => {
 				// Vérification de la configuration
 				if (!self.config || !self.config.host || !self.config.apiKey) {

@@ -188,9 +188,9 @@ class ModuleInstance extends InstanceBase {
 				
 				// Les 8 premiers éléments (positions 0-7) sont les relais de commande
 				// Tri par position uniquement (pas de filtre par nom pour rester flexible)
-				const relays = data.slice(0, 8).map(relay => ({
+				const relays = data.slice(0, 8).map((relay, index) => ({
 					id: relay._id.toString(),
-					label: `${relay.name} (${relay._id})`
+					label: `${relay.name} (id:${relay._id} / R:${index + 1})`
 				}))
 				
 				this.log('info', `${relays.length} relais de commande trouvés`)
@@ -227,9 +227,9 @@ class ModuleInstance extends InstanceBase {
 				
 				// Les inputs sont aux positions 17-24 (index 16-23)
 				// Tri par position uniquement (pas de filtre par nom)
-				const inputs = data.slice(16, 24).map(input => ({
+				const inputs = data.slice(16, 24).map((input, index) => ({
 					id: input._id.toString(),
-					label: `${input.name} (${input._id})`
+					label: `${input.name} (id:${input._id} / D:${index + 1})`
 				}))
 				
 				this.log('info', `${inputs.length} inputs digitaux trouvés`)

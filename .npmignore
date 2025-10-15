@@ -1,0 +1,15 @@
+# Exclude dev copies in companion/ folder
+companion/*.js
+!companion/manifest.json
+
+# Git files
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# Development files
+*.tgz
+node_modules

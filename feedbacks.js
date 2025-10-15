@@ -20,9 +20,9 @@ module.exports = async function (self) {
 				// Les 8 premiers éléments (positions 0-7) sont les relais de commande
 				// Tri par position uniquement (pas de filtre par nom)
 				const relays = data.slice(0, 8)
-				self.relayChoices = relays.map(relay => ({
+				self.relayChoices = relays.map((relay, index) => ({
 					id: relay._id.toString(),
-					label: `${relay.name} (${relay._id})`
+					label: `${relay.name} (id:${relay._id} / R:${index + 1})`
 				}))
 				relays.forEach(relay => {
 					self.relayStates[relay._id] = relay.on ? 'ON' : 'OFF'
@@ -30,9 +30,9 @@ module.exports = async function (self) {
 				
 				// Les 8 digital inputs sont aux positions 17-24 (index 16-23)
 				const inputs = data.slice(16, 24)
-				self.inputChoices = inputs.map(input => ({
+				self.inputChoices = inputs.map((input, index) => ({
 					id: input._id.toString(),
-					label: `${input.name} (${input._id})`
+					label: `${input.name} (id:${input._id} / D:${index + 1})`
 				}))
 				inputs.forEach(input => {
 					self.inputStates[input._id] = input.on ? 'ON' : 'OFF'
