@@ -2,23 +2,23 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-// Lire la version depuis manifest.json
+// Read version from manifest.json
 const manifestPath = path.join(__dirname, 'companion', 'manifest.json');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 const VERSION = manifest.version;
 
-// Créer le dossier pkg
+// Create pkg folder
 const pkgDir = path.join(__dirname, 'pkg');
 if (fs.existsSync(pkgDir)) {
     fs.rmSync(pkgDir, { recursive: true, force: true });
 }
 fs.mkdirSync(pkgDir, { recursive: true });
 
-// Créer le dossier companion dans pkg
+// Create companion folder in pkg
 const companionDir = path.join(pkgDir, 'companion');
 fs.mkdirSync(companionDir, { recursive: true });
 
-// Copier les fichiers nécessaires
+// Copy required files
 const filesToCopy = [
     'main.js',
     'actions.js',
@@ -34,24 +34,24 @@ filesToCopy.forEach(file => {
         path.join(__dirname, file),
         path.join(pkgDir, file)
     );
-    console.log(`Copié: ${file}`);
+    console.log(`Copied: ${file}`);
 });
 
-// Copier les fichiers du dossier companion
+// Copy companion folder files
 fs.copyFileSync(
     path.join(__dirname, 'companion', 'manifest.json'),
     path.join(companionDir, 'manifest.json')
 );
-console.log('Copié: companion/manifest.json');
+console.log('Copied: companion/manifest.json');
 
 fs.copyFileSync(
     path.join(__dirname, 'companion', 'HELP.md'),
     path.join(companionDir, 'HELP.md')
 );
-console.log('Copié: companion/HELP.md');
+console.log('Copied: companion/HELP.md');
 
-// Copier node_modules
-console.log('\nCopie de node_modules...');
+// Copy node_modules
+console.log('\nCopying node_modules...');
 const nodeModulesSource = path.join(__dirname, 'node_modules');
 const nodeModulesDest = path.join(pkgDir, 'node_modules');
 
@@ -75,21 +75,21 @@ function copyRecursiveSync(src, dest) {
 }
 
 copyRecursiveSync(nodeModulesSource, nodeModulesDest);
-console.log('✅ node_modules copié');
+console.log('✅ node_modules copied');
 
-// Utiliser la version du manifest.json pour créer l'archive
+// Use version from manifest.json to create archive
 const archiveName = `companion-module-ipx800-${VERSION}.tgz`;
 
-// Créer l'archive tar.gz avec le dossier pkg
-console.log('\nCréation de l\'archive...');
+// Create tar.gz archive with pkg folder
+console.log('\nCreating archive...');
 try {
     execSync(`tar -czf ${archiveName} pkg`, { cwd: __dirname });
-    console.log(`\n✅ Archive créée: ${archiveName}`);
+    console.log(`\n✅ Archive created: ${archiveName}`);
     
-    // Nettoyer le dossier pkg
+    // Clean up pkg folder
     fs.rmSync(pkgDir, { recursive: true, force: true });
-    console.log('✅ Dossier temporaire nettoyé');
+    console.log('✅ Temporary folder cleaned up');
 } catch (error) {
-    console.error('❌ Erreur lors de la création de l\'archive:', error.message);
+    console.error('❌ Error creating archive:', error.message);
     process.exit(1);
 }

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const { execSync } = require('child_process');
 
 // Configuration
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
@@ -16,6 +17,31 @@ const TAG_NAME = VERSION;
 // Nom du fichier .tgz à uploader
 const TGZ_FILE = `companion-module-ipx800-${VERSION}.tgz`;
 const TGZ_PATH = path.join(__dirname, TGZ_FILE);
+
+// Function to get commits since last tag
+function getChangelogFromGit() {
+    try {
+        // Get the last tag
+        const lastTag = execSync('git describe --tags --abbrev=0 2>$null', { encoding: 'utf8' }).trim();
+        
+        if (lastTag) {
+            // Get commits since last tag
+            const commits = execSync(`git log ${lastTag}..HEAD --pretty=format:"- %s"`, { encoding: 'utf8' }).trim();
+            
+            if (commits) {
+                return `## Changes since ${lastTag}\n\n${commits}`;
+            }
+        }
+        
+        // If no previous tag, get the last 10 commits
+        const recentCommits = execSync('git log -10 --pretty=format:"- %s"', { encoding: 'utf8' }).trim();
+        return `## Recent changes\n\n${recentCommits}`;
+        
+    } catch (error) {
+        console.log('⚠️  Unable to retrieve git history, using default message');
+        return `## Changes in ${VERSION}\n\nSee commits on GitHub for more details.`;
+    }
+}
 
 // Fonction pour faire une requête HTTPS
 function makeRequest(options, data = null) {
@@ -80,13 +106,16 @@ function uploadAsset(uploadUrl, filePath) {
 
 async function createRelease() {
     try {
-        console.log(`📦 Création de la release ${TAG_NAME}...`);
+        console.log(`📦 Creating release ${TAG_NAME}...`);
         
-        // Créer la release
+        // Generate changelog from git
+        const changelog = getChangelogFromGit();
+        
+        // Create the release
         const releaseData = JSON.stringify({
             tag_name: TAG_NAME,
             name: `${TAG_NAME}`,
-            body: `## Changes in ${TAG_NAME}\n\n- Simplified documentation (removed icons and AI-generated tone)\n- GitHub integration for automatic updates\n- Improved clarity in HELP.md and README.md\n\n## Installation\n\nDownload the \`${TGZ_FILE}\` file and import it into Companion.`,
+            body: `# Release ${TAG_NAME}\n\n${changelog}\n\n## Installation\n\nDownload the \`${TGZ_FILE}\` file and import it into Companion.`,
             draft: false,
             prerelease: false
         });
@@ -104,42 +133,42 @@ async function createRelease() {
         };
         
         const release = await makeRequest(createOptions, releaseData);
-        console.log(`✅ Release créée: ${release.html_url}`);
+        console.log(`✅ Release created: ${release.html_url}`);
         
-        // Uploader le fichier .tgz
-        console.log(`📤 Upload du fichier ${TGZ_FILE}...`);
+        // Upload the .tgz file
+        console.log(`📤 Uploading file ${TGZ_FILE}...`);
         const asset = await uploadAsset(release.upload_url, TGZ_PATH);
-        console.log(`✅ Fichier uploadé: ${asset.browser_download_url}`);
+        console.log(`✅ File uploaded: ${asset.browser_download_url}`);
         
-        console.log('\n🎉 Release créée avec succès!');
-        console.log(`\nLien de la release: ${release.html_url}`);
-        console.log(`Lien de téléchargement: ${asset.browser_download_url}`);
+        console.log('\n🎉 Release created successfully!');
+        console.log(`\nRelease URL: ${release.html_url}`);
+        console.log(`Download URL: ${asset.browser_download_url}`);
         
     } catch (error) {
-        console.error('❌ Erreur:', error.message);
+        console.error('❌ Error:', error.message);
         process.exit(1);
     }
 }
 
-// Vérifications avant création
+// Checks before creation
 if (!GITHUB_TOKEN) {
-    console.error('❌ Erreur: GITHUB_TOKEN non défini');
-    console.log('\nPour créer un token GitHub:');
-    console.log('1. Allez sur https://github.com/settings/tokens');
-    console.log('2. Cliquez sur "Generate new token" > "Generate new token (classic)"');
-    console.log('3. Donnez un nom au token (ex: "Companion Release")');
-    console.log('4. Cochez les permissions: "repo" (Full control of private repositories)');
-    console.log('5. Cliquez sur "Generate token" et copiez le token');
-    console.log('\nPuis définissez la variable d\'environnement:');
-    console.log('$env:GITHUB_TOKEN="votre_token_ici"');
+    console.error('❌ Error: GITHUB_TOKEN not defined');
+    console.log('\nTo create a GitHub token:');
+    console.log('1. Go to https://github.com/settings/tokens');
+    console.log('2. Click "Generate new token" > "Generate new token (classic)"');
+    console.log('3. Give the token a name (e.g., "Companion Release")');
+    console.log('4. Check permissions: "repo" (Full control of private repositories)');
+    console.log('5. Click "Generate token" and copy the token');
+    console.log('\nThen set the environment variable:');
+    console.log('$env:GITHUB_TOKEN="your_token_here"');
     process.exit(1);
 }
 
 if (!fs.existsSync(TGZ_PATH)) {
-    console.error(`❌ Erreur: Le fichier ${TGZ_FILE} n'existe pas`);
-    console.log('Exécutez d\'abord: node create-companion-package.js');
+    console.error(`❌ Error: File ${TGZ_FILE} does not exist`);
+    console.log('Run first: node create-companion-package.js');
     process.exit(1);
 }
 
-console.log(`📦 Version détectée: ${VERSION}`);
+console.log(`📦 Version detected: ${VERSION}`);
 createRelease();
