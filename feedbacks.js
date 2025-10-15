@@ -4,6 +4,8 @@ module.exports = async function (self) {
 	// Stockage local des états des relais et inputs
 	self.relayStates = {}
 	self.inputStates = {}
+	self.relayChoices = []
+	self.inputChoices = []
 
 	// Fonction pour mettre à jour les états des relais et inputs depuis l'IPX800
 	async function pollIOStates() {
@@ -15,19 +17,23 @@ module.exports = async function (self) {
 			if (response.ok) {
 				const data = await response.json()
 				
-				// Filtrer les relais comme avant (filtrage dynamique)
-				const relays = data.filter(item => {
-					const name = (item.name || '').toLowerCase()
-					return name.includes('relay cmd') || 
-					       name.includes('relay command') || 
-					       (name.includes('relay') && !name.includes('state') && !name.includes('input'))
-				})
+				// Les 8 premiers éléments (positions 0-7) sont les relais de commande
+				// Tri par position uniquement (pas de filtre par nom)
+				const relays = data.slice(0, 8)
+				self.relayChoices = relays.map(relay => ({
+					id: relay._id.toString(),
+					label: `${relay.name} (${relay._id})`
+				}))
 				relays.forEach(relay => {
 					self.relayStates[relay._id] = relay.on ? 'ON' : 'OFF'
 				})
 				
-				// Les 8 digital inputs sont aux positions 17-24 (indépendants des relais)
+				// Les 8 digital inputs sont aux positions 17-24 (index 16-23)
 				const inputs = data.slice(16, 24)
+				self.inputChoices = inputs.map(input => ({
+					id: input._id.toString(),
+					label: `${input.name} (${input._id})`
+				}))
 				inputs.forEach(input => {
 					self.inputStates[input._id] = input.on ? 'ON' : 'OFF'
 				})
@@ -61,7 +67,7 @@ module.exports = async function (self) {
 					label: 'Relay',
 					id: 'relay',
 					default: '65536',
-					choices: Object.keys(self.relayStates).map(id => ({ id, label: `Relay ${id}` })),
+					choices: self.relayChoices.length > 0 ? self.relayChoices : [{ id: '65536', label: 'Loading...' }],
 					minChoicesForSearch: 0,
 				},
 			],
@@ -84,7 +90,7 @@ module.exports = async function (self) {
 					label: 'Relay',
 					id: 'relay',
 					default: '65536',
-					choices: Object.keys(self.relayStates).map(id => ({ id, label: `Relay ${id}` })),
+					choices: self.relayChoices.length > 0 ? self.relayChoices : [{ id: '65536', label: 'Loading...' }],
 					minChoicesForSearch: 0,
 				},
 				{
@@ -118,7 +124,7 @@ module.exports = async function (self) {
 					label: 'Digital Input',
 					id: 'input',
 					default: '65552',
-					choices: Object.keys(self.inputStates).map(id => ({ id, label: `Input ${id}` })),
+					choices: self.inputChoices.length > 0 ? self.inputChoices : [{ id: '65552', label: 'Loading...' }],
 					minChoicesForSearch: 0,
 				},
 			],
@@ -141,7 +147,7 @@ module.exports = async function (self) {
 					label: 'Digital Input',
 					id: 'input',
 					default: '65552',
-					choices: Object.keys(self.inputStates).map(id => ({ id, label: `Input ${id}` })),
+					choices: self.inputChoices.length > 0 ? self.inputChoices : [{ id: '65552', label: 'Loading...' }],
 					minChoicesForSearch: 0,
 				},
 				{

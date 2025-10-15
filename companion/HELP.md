@@ -139,17 +139,22 @@ These are automatically updated when actions are executed.
 
 ---
 
-## � IPX800 V5 I/O Structure
+## 📊 IPX800 V5 I/O Structure
 
 The IPX800 V5 API returns I/O elements in a specific order:
 
-- **Elements 0-7**: Relay commands (the 8 controllable relays)
-- **Elements 8-15**: Relay states (read-only, not used by this module)
+- **Elements 0-7** (positions 1-8): Relay commands (the 8 controllable relays)
+- **Elements 8-15** (positions 9-16): Relay states (read-only, not used by this module)
 - **Elements 16-23** (positions 17-24): Digital inputs (8 inputs for monitoring)
 
-The module automatically detects and separates these elements:
-- **Relays** are available in actions (ON/OFF/Toggle) and feedbacks
-- **Digital inputs** are available in feedbacks only (monitoring)
+**Important:** The module uses **fixed position-based detection** (not name filtering):
+- Relays are always the first 8 elements (index 0-7)
+- Digital inputs are always elements 16-23 (index 16-23)
+- This means you can rename your relays/inputs in IPX800 without breaking the module
+
+**Display format:** The module shows items as `name (_id)` where:
+- `name` is the custom name you set in IPX800
+- `_id` is the unique identifier used for API calls
 
 ---
 

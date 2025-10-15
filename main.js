@@ -186,18 +186,12 @@ class ModuleInstance extends InstanceBase {
 				const data = await response.json()
 				this.log('debug', `Liste des I/O récupérée: ${data.length} éléments`)
 				
-				// Filtrer les relais de commande (filtrage dynamique)
-				const relays = data
-					.filter(item => {
-						const name = (item.name || '').toLowerCase()
-						return name.includes('relay cmd') ||  
-						       name.includes('relay command') ||
-						       (name.includes('relay') && !name.includes('state') && !name.includes('input'))
-					})
-					.map(relay => ({
-						id: relay._id.toString(),
-						label: `${relay.name || `Relay ${relay._id}`} (ID: ${relay._id})`
-					}))
+				// Les 8 premiers éléments (positions 0-7) sont les relais de commande
+				// Tri par position uniquement (pas de filtre par nom pour rester flexible)
+				const relays = data.slice(0, 8).map(relay => ({
+					id: relay._id.toString(),
+					label: `${relay.name} (${relay._id})`
+				}))
 				
 				this.log('info', `${relays.length} relais de commande trouvés`)
 				return relays
@@ -231,11 +225,11 @@ class ModuleInstance extends InstanceBase {
 			if (response.ok) {
 				const data = await response.json()
 				
-				// Les inputs sont aux positions 17-24 (8 suivants après les 8 états)
-				// Index: 0-7 = Relais cmd, 8-15 = États relais, 16-23 = Inputs digitaux (positions 17-24)
+				// Les inputs sont aux positions 17-24 (index 16-23)
+				// Tri par position uniquement (pas de filtre par nom)
 				const inputs = data.slice(16, 24).map(input => ({
 					id: input._id.toString(),
-					label: `${input.name || `Input ${input._id}`} (ID: ${input._id})`
+					label: `${input.name} (${input._id})`
 				}))
 				
 				this.log('info', `${inputs.length} inputs digitaux trouvés`)
