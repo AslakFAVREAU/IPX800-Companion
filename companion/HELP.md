@@ -145,7 +145,7 @@ The IPX800 V5 API returns I/O elements in a specific order:
 
 - **Elements 0-7**: Relay commands (the 8 controllable relays)
 - **Elements 8-15**: Relay states (read-only, not used by this module)
-- **Elements 16-23**: Digital inputs (8 inputs for monitoring)
+- **Elements 16-23** (positions 17-24): Digital inputs (8 inputs for monitoring)
 
 The module automatically detects and separates these elements:
 - **Relays** are available in actions (ON/OFF/Toggle) and feedbacks

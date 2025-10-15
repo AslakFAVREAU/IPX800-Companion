@@ -15,13 +15,18 @@ module.exports = async function (self) {
 			if (response.ok) {
 				const data = await response.json()
 				
-				// Les 8 premiers sont les relais de commande (index 0-7)
-				const relays = data.slice(0, 8)
+				// Filtrer les relais comme avant (filtrage dynamique)
+				const relays = data.filter(item => {
+					const name = (item.name || '').toLowerCase()
+					return name.includes('relay cmd') || 
+					       name.includes('relay command') || 
+					       (name.includes('relay') && !name.includes('state') && !name.includes('input'))
+				})
 				relays.forEach(relay => {
 					self.relayStates[relay._id] = relay.on ? 'ON' : 'OFF'
 				})
 				
-				// Les inputs digitaux sont aux positions 16-23 (après les 8 états de relais)
+				// Les 8 digital inputs sont aux positions 17-24 (indépendants des relais)
 				const inputs = data.slice(16, 24)
 				inputs.forEach(input => {
 					self.inputStates[input._id] = input.on ? 'ON' : 'OFF'
