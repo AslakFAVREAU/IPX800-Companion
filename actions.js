@@ -147,22 +147,6 @@ module.exports = function (self) {
 					self.log('warn', 'Configuration manquante - impossible d\'envoyer la commande')
 					return
 				}
-				// GET l'état réel du relais après le toggle
-				try {
-					const statusRes = await fetch(url + '', { method: 'GET', timeout: 2000 })
-					if (statusRes.ok) {
-						const statusData = await statusRes.json()
-						if (self.setVariableValues) {
-							self.setVariableValues({
-								[`relay_${relay}_state`]: statusData.on ? 'ON' : 'OFF',
-								[`relay_${relay}_raw`]: JSON.stringify(statusData)
-							})
-						}
-						self.log('info', `État réel du relais ${relay}: ${statusData.on ? 'ON' : 'OFF'}`)
-					}
-				} catch (err) {
-					self.log('warn', `Impossible de récupérer l'état réel du relais ${relay} après toggle: ${err.message}`)
-				}
 
 				const { relay } = event.options
 				const url = `http://${self.config.host}/api/core/io/${relay}?ApiKey=${self.config.apiKey}`
@@ -192,6 +176,23 @@ module.exports = function (self) {
 					}
 					
 					self.log('info', `Toggle envoyé avec succès au relais ${relay}`)
+					
+					// GET l'état réel du relais après le toggle
+					try {
+						const statusRes = await fetch(url, { method: 'GET', timeout: 2000 })
+						if (statusRes.ok) {
+							const statusData = await statusRes.json()
+							if (self.setVariableValues) {
+								self.setVariableValues({
+									[`relay_${relay}_state`]: statusData.on ? 'ON' : 'OFF',
+									[`relay_${relay}_raw`]: JSON.stringify(statusData)
+								})
+							}
+							self.log('info', `État réel du relais ${relay}: ${statusData.on ? 'ON' : 'OFF'}`)
+						}
+					} catch (err) {
+						self.log('warn', `Impossible de récupérer l'état réel du relais ${relay} après toggle: ${err.message}`)
+					}
 				} catch (err) {
 					self.log('error', `Échec : ${err.message}`)
 					self.updateStatus(InstanceStatus.ConnectionFailure, `Request failed: ${err.message}`)

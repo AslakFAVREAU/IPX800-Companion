@@ -1,89 +1,89 @@
 # Companion Module – IPX800 V5
 
-This Companion module allows you to **control relays** of a **GCE IPX800 V5** automation controller via its HTTP API.
+This Companion module allows you to control relays of a GCE IPX800 V5 automation controller via its HTTP API.
 
 ---
 
-## 🔧 Required Configuration
+## Required Configuration
 
 Before using the module, configure it in Companion:
 
-- **IP Address**: Local IP of your IPX800 (e.g. `10.10.40.10`)
-- **API Key**: Your API key (`ApiKey`) defined in the IPX web interface
+- IP Address: Local IP of your IPX800 (e.g. `10.10.40.10`)
+- API Key: Your API key (`ApiKey`) defined in the IPX web interface
 
 ---
 
-## ⚙️ Available Actions
+## Available Actions
 
 ### 1. Relay Control (ON/OFF)
 - Allows you to activate or deactivate a relay
 - Automatically selects from available relays detected via API
 - Options:
-  - **Relay**: Choose from dropdown list (e.g. `[IPX]Relay cmd 1 (ID: 65536)`)
-  - **State**: `ON` or `OFF`
+  - Relay: Choose from dropdown list (e.g. `[IPX]Relay cmd 1 (ID: 65536)`)
+  - State: `ON` or `OFF`
 
 ### 2. Relay Toggle
 - Toggles the current state of a relay (ON→OFF or OFF→ON)
 - Automatically selects from available relays detected via API
 - Options:
-  - **Relay**: Choose from dropdown list
+  - Relay: Choose from dropdown list
 
 ### 3. Diagnostic Actions
-- **Ping Test**: Tests basic network connectivity
-- **API Test**: Tests API authentication and endpoints
-- **Get IO List**: Retrieves and displays all available I/O
-- **Test Relay Formats**: Tests different API request formats
+- Ping Test: Tests basic network connectivity
+- API Test: Tests API authentication and endpoints
+- Get IO List: Retrieves and displays all available I/O
+- Test Relay Formats: Tests different API request formats
 
 ---
 
-## 🎨 Visual Feedback
+## Visual Feedback
 
-The module provides **real-time feedback** with four types:
+The module provides real-time feedback with four types:
 
 ### Relay Feedbacks
 
 #### 1. Relay Status (Recommended)
-- **Red background** when relay is **ON** (active)
-- **Default button color** (usually black/dark) when relay is **OFF** (inactive)
-- **Simple and intuitive**: Just select the relay from dropdown
-- **Perfect for status indication**: Clearly shows active relays
+- Red background when relay is ON (active)
+- Default button color (usually black/dark) when relay is OFF (inactive)
+- Simple and intuitive: Just select the relay from dropdown
+- Perfect for status indication: Clearly shows active relays
 
 #### 2. Relay State Comparison
-- **Green background** when actual state **matches** expected state
-- **Default button color** when actual state **does not match** expected state
-- **Advanced usage**: Compare actual state with ON/OFF selection
-- **Useful for validation**: Verify commands were executed correctly
+- Green background when actual state matches expected state
+- Default button color when actual state does not match expected state
+- Advanced usage: Compare actual state with ON/OFF selection
+- Useful for validation: Verify commands were executed correctly
 
 ### Digital Input Feedbacks
 
 #### 3. Digital Input Status (Recommended)
-- **Blue background** when input is **ON** (true/active)
-- **Default button color** (usually black/dark) when input is **OFF** (false/inactive)
-- **Simple and intuitive**: Just select the input from dropdown
-- **Perfect for monitoring**: Clearly shows active inputs
+- Blue background when input is ON (true/active)
+- Default button color (usually black/dark) when input is OFF (false/inactive)
+- Simple and intuitive: Just select the input from dropdown
+- Perfect for monitoring: Clearly shows active inputs
 
 #### 4. Digital Input State Comparison
-- **Green background** when actual state **matches** expected state
-- **Default button color** when actual state **does not match** expected state
-- **Advanced usage**: Compare actual state with ON/OFF selection
-- **Useful for triggers**: Create conditional logic based on input states
+- Green background when actual state matches expected state
+- Default button color when actual state does not match expected state
+- Advanced usage: Compare actual state with ON/OFF selection
+- Useful for triggers: Create conditional logic based on input states
 
 ### How Feedbacks Work in Companion
 
-**Important**: In Companion, feedbacks work as follows:
+Important: In Companion, feedbacks work as follows:
 - When callback returns `true` → Apply the colored style
 - When callback returns `false` → Keep default button appearance
 
-**Example Setup**:
+Example Setup:
 1. Create a button with black background (default style)
 2. Add "Relay Status" feedback
-3. **Result**: Button turns red when relay is ON, stays black when OFF
+3. Result: Button turns red when relay is ON, stays black when OFF
 
 All feedbacks automatically query the IPX800 every few seconds to display real-time status.
 
 ---
 
-## ⚡️ How Feedbacks Work (Technical)
+## How Feedbacks Work (Technical)
 
 - The module keeps a local copy of all relay states (`relayStates`) in memory.
 - Every 500ms, it polls the IPX800 API to update these states.
@@ -91,27 +91,27 @@ All feedbacks automatically query the IPX800 every few seconds to display real-t
 - After each polling, Companion automatically refreshes all feedbacks for instant display.
 - This structure is inspired by the ATEM module for maximum reliability and performance.
 
-**Advantages:**
+Advantages:
 - Instant button color change when relay state changes
 - No network lag or overload
 - Always synchronized with hardware, even if relays change outside Companion
 
 ---
 
-## 🧑‍💻 User Guide: Setting Up Reliable Feedbacks
+## User Guide: Setting Up Reliable Feedbacks
 
-1. **Add a button in Companion**
-2. **Add a feedback (Relay Status or Relay State Comparison)**
-3. **Select the relay from the dropdown**
-4. **Result:**
+1. Add a button in Companion
+2. Add a feedback (Relay Status or Relay State Comparison)
+3. Select the relay from the dropdown
+4. Result:
    - Button color changes instantly when the relay state changes (red for ON, black for OFF)
    - No need to configure polling or refresh: everything is automatic
 
-**Tip:** You can use multiple feedbacks on different buttons, all will update in real time as the hardware changes.
+Tip: You can use multiple feedbacks on different buttons, all will update in real time as the hardware changes.
 
 ---
 
-## 🔄 Dynamic Features
+## Dynamic Features
 
 ### Automatic Relay Detection
 - The module automatically fetches available relays from your IPX800
@@ -125,9 +125,9 @@ All feedbacks automatically query the IPX800 every few seconds to display real-t
 
 ---
 
-## 💡 Variable Tips
+## Variable Tips
 
-The module creates **dynamic variables** for relay states:
+The module creates dynamic variables for relay states:
 
 ```
 $(ipx800v5:relay_65536_state)
@@ -139,37 +139,37 @@ These are automatically updated when actions are executed.
 
 ---
 
-## 📊 IPX800 V5 I/O Structure
+## IPX800 V5 I/O Structure
 
 The IPX800 V5 API returns I/O elements in a specific order:
 
-- **Elements 0-7** (positions 1-8): Relay commands (the 8 controllable relays)
-- **Elements 8-15** (positions 9-16): Relay states (read-only, not used by this module)
-- **Elements 16-23** (positions 17-24): Digital inputs (8 inputs for monitoring)
+- Elements 0-7 (positions 1-8): Relay commands (the 8 controllable relays)
+- Elements 8-15 (positions 9-16): Relay states (read-only, not used by this module)
+- Elements 16-23 (positions 17-24): Digital inputs (8 inputs for monitoring)
 
-**Important:** The module uses **fixed position-based detection** (not name filtering):
+Important: The module uses fixed position-based detection (not name filtering):
 - Relays are always the first 8 elements (index 0-7)
 - Digital inputs are always elements 16-23 (index 16-23)
 - This means you can rename your relays/inputs in IPX800 without breaking the module
 
-**Display format:** The module shows items as `name (_id)` where:
+Display format: The module shows items as `name (_id)` where:
 - `name` is the custom name you set in IPX800
 - `_id` is the unique identifier used for API calls
 
 ---
 
-## �🟢 Automatic Relay State Tracking
+## Automatic Relay State Tracking
 
 After every relay command (ON, OFF, or TOGGLE), the module automatically queries the IPX800 for the real relay state and updates the variable:
 
 - `$(ipx800v5:relay_65536_state)` will be set to `ON` or `OFF` based on the actual hardware status
 - This ensures feedbacks and variables always reflect the true state
 
-**On module startup:**
+On module startup:
 - The module queries all detected relays and initializes their state variables
 - You always start with the real status of each relay
 
-**Example:**
+Example:
 - You send a command to turn Relay 1 ON
 - The module sends the command, then immediately checks the relay status
 - Variable `relay_65536_state` is updated to `ON` if the hardware confirms
@@ -178,7 +178,7 @@ This guarantees that Companion always displays the real status, even if the hard
 
 ---
 
-## 🛠 Relay ID Examples
+## Relay ID Examples
 
 The module automatically detects available relays, typically:
 
@@ -191,52 +191,52 @@ Use the dropdown selections instead of manual ID entry.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-1. **Install** the module in Companion
-2. **Configure** your IPX800 IP address and API key
-3. **Wait** for automatic relay detection (check logs)
-4. **Create actions** using the dropdown relay selections
-5. **Add feedbacks** for visual status indication
+1. Install the module in Companion
+2. Configure your IPX800 IP address and API key
+3. Wait for automatic relay detection (check logs)
+4. Create actions using the dropdown relay selections
+5. Add feedbacks for visual status indication
 
 ### Quick Setup Example
 
-**Creating a Relay Control Button**:
+Creating a Relay Control Button:
 1. Create a new button in Companion
 2. Set button style: Black background, white text
 3. Add Action: "Relay Control" → Select relay → Set to "ON" 
 4. Add Feedback: "Relay Status" → Select same relay
-5. **Result**: Button turns red when relay is ON, black when OFF
+5. Result: Button turns red when relay is ON, black when OFF
 
-**Creating a Toggle Button**:
+Creating a Toggle Button:
 1. Create a new button
 2. Add Action: "Relay Toggle" → Select relay
 3. Add Feedback: "Relay Status" → Select same relay
-4. **Result**: One button to toggle AND see current status
+4. Result: One button to toggle AND see current status
 
 ---
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Connection Issues
 - Verify IP address and API key are correct
 - Check that IPX800 is accessible on your network
-- Use the **Ping Test** action to verify connectivity
+- Use the Ping Test action to verify connectivity
 
 ### No Relays in Dropdown
 - Check API key permissions in IPX800 settings
-- Use **Get IO List** action to see what's detected
+- Use Get IO List action to see what's detected
 - Verify relays are configured in IPX800
 
 ### API Errors
-- Use **API Test** action for diagnostic information
+- Use API Test action for diagnostic information
 - Check IPX800 firmware version (V5 required)
 - Verify API is enabled in IPX800 settings
 
 ---
 
-## 📬 Support
+## Support
 
-- Module developed by **Aslak Favreau**
+- Module developed by Aslak Favreau
 - Contact: `aslak@evenement-soe.com`
 - Version: Compatible with Companion 3.0+ and IPX800 V5

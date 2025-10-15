@@ -13,3 +13,8 @@ companion/*.js
 # Development files
 *.tgz
 node_modules
+reference-module
+
+# Dev dependencies
+.prettierignore
+.npmignore

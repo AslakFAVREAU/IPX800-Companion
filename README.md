@@ -8,39 +8,39 @@ This module allows you to control relays on the GCE IPX800 V5 device via HTTP AP
 
 ## Features
 
-- **Relay Control**: Turn relays ON/OFF (relays 1-32)
-- **Toggle Function**: Toggle relay states
-- **Variables**: Track relay states and connection status
-- **Feedbacks**: Visual feedback for relay states (future enhancement)
+- Relay Control: Turn relays ON/OFF (relays 1-32)
+- Toggle Function: Toggle relay states
+- Variables: Track relay states and connection status
+- Feedbacks: Visual feedback for relay states (future enhancement)
 
 ## Configuration
 
-1. **IP Address**: Enter the IP address of your IPX800 V5 device
-2. **API Key**: Enter your IPX800 API key for authentication
+1. IP Address: Enter the IP address of your IPX800 V5 device
+2. API Key: Enter your IPX800 API key for authentication
 
 ## Actions
 
 ### Relay ON/OFF
 Control individual relays with explicit ON/OFF commands.
 
-**Options:**
+Options:
 - Relay Number (1-32)
 - State (ON/OFF)
 
 ### Relay Toggle
 Toggle the current state of a relay.
 
-**Options:**
+Options:
 - Relay Number (1-32)
 
 ## Variables
 
 The module provides the following variables:
 
-- `relay_1_state` to `relay_32_state`: Current state of each relay
-- `connection_status`: Connection status to the IPX800
-- `last_command`: Last command sent to the device
-- `ipx800_host`: Currently configured host IP
+- relay_1_state to relay_32_state: Current state of each relay
+- connection_status: Connection status to the IPX800
+- last_command: Last command sent to the device
+- ipx800_host: Currently configured host IP
 
 ## Requirements
 
@@ -50,8 +50,8 @@ The module provides the following variables:
 
 ## Support
 
-For issues and feature requests, please visit the [GitHub repository](https://github.com/AslakFAVREAU/IPX800-Companion).
+For issues and feature requests, please visit the GitHub repository.
 
 ## License
 
-MIT License - see [LICENSE](./LICENSE) file for details.
+MIT License - see LICENSE file for details.
