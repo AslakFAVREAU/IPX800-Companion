@@ -175,7 +175,7 @@ class ModuleInstance extends InstanceBase {
 			const fetch = require('node-fetch')
 			const url = `http://${this.config.host}/api/core/io?ApiKey=${this.config.apiKey}`
 			
-			this.log('debug', `Récupération de la liste des relais: ${url}`)
+			this.log('debug', `Récupération de la liste des I/O: ${url}`)
 			
 			const response = await fetch(url, { 
 				method: 'GET',
@@ -186,18 +186,11 @@ class ModuleInstance extends InstanceBase {
 				const data = await response.json()
 				this.log('debug', `Liste des I/O récupérée: ${data.length} éléments`)
 				
-				// Filtrer pour ne garder que les relais de commande (pas les states/inputs)
-				const relays = data
-					.filter(item => {
-						const name = (item.name || '').toLowerCase()
-						return name.includes('relay cmd') ||  // Relais de commande IPX
-							name.includes('relay command') ||
-							(name.includes('relay') && !name.includes('state') && !name.includes('input'))
-					})
-					.map(relay => ({
-						id: relay._id.toString(),
-						label: `${relay.name || `Relay ${relay._id}`} (ID: ${relay._id})`
-					}))
+				// Les 8 premiers sont les relais de commande
+				const relays = data.slice(0, 8).map(relay => ({
+					id: relay._id.toString(),
+					label: `${relay.name || `Relay ${relay._id}`} (ID: ${relay._id})`
+				}))
 				
 				this.log('info', `${relays.length} relais de commande trouvés`)
 				return relays
@@ -207,6 +200,45 @@ class ModuleInstance extends InstanceBase {
 			}
 		} catch (error) {
 			this.log('error', `Erreur lors de la récupération des relais: ${error.message}`)
+			return []
+		}
+	}
+
+	async getInputList() {
+		try {
+			if (!this.config || !this.config.host || !this.config.apiKey) {
+				this.log('warn', 'Configuration incomplète pour récupérer la liste des inputs')
+				return []
+			}
+
+			const fetch = require('node-fetch')
+			const url = `http://${this.config.host}/api/core/io?ApiKey=${this.config.apiKey}`
+			
+			this.log('debug', `Récupération de la liste des inputs: ${url}`)
+			
+			const response = await fetch(url, { 
+				method: 'GET',
+				timeout: 5000
+			})
+			
+			if (response.ok) {
+				const data = await response.json()
+				
+				// Les inputs sont aux positions 16-23 (8 suivants après les 8 états)
+				// Index: 0-7 = Relais cmd, 8-15 = États relais, 16-23 = Inputs digitaux
+				const inputs = data.slice(16, 24).map(input => ({
+					id: input._id.toString(),
+					label: `${input.name || `Input ${input._id}`} (ID: ${input._id})`
+				}))
+				
+				this.log('info', `${inputs.length} inputs digitaux trouvés`)
+				return inputs
+			} else {
+				this.log('warn', `Erreur lors de la récupération des inputs: ${response.status}`)
+				return []
+			}
+		} catch (error) {
+			this.log('error', `Erreur lors de la récupération des inputs: ${error.message}`)
 			return []
 		}
 	}

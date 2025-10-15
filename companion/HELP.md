@@ -38,19 +38,35 @@ Before using the module, configure it in Companion:
 
 ## 🎨 Visual Feedback
 
-The module provides **real-time feedback** with two types:
+The module provides **real-time feedback** with four types:
 
-### 1. Relay Status (Recommended)
+### Relay Feedbacks
+
+#### 1. Relay Status (Recommended)
 - **Red background** when relay is **ON** (active)
 - **Default button color** (usually black/dark) when relay is **OFF** (inactive)
 - **Simple and intuitive**: Just select the relay from dropdown
 - **Perfect for status indication**: Clearly shows active relays
 
-### 2. Relay State Comparison
+#### 2. Relay State Comparison
 - **Green background** when actual state **matches** expected state
 - **Default button color** when actual state **does not match** expected state
 - **Advanced usage**: Compare actual state with ON/OFF selection
 - **Useful for validation**: Verify commands were executed correctly
+
+### Digital Input Feedbacks
+
+#### 3. Digital Input Status (Recommended)
+- **Blue background** when input is **ON** (true/active)
+- **Default button color** (usually black/dark) when input is **OFF** (false/inactive)
+- **Simple and intuitive**: Just select the input from dropdown
+- **Perfect for monitoring**: Clearly shows active inputs
+
+#### 4. Digital Input State Comparison
+- **Green background** when actual state **matches** expected state
+- **Default button color** when actual state **does not match** expected state
+- **Advanced usage**: Compare actual state with ON/OFF selection
+- **Useful for triggers**: Create conditional logic based on input states
 
 ### How Feedbacks Work in Companion
 
@@ -123,7 +139,21 @@ These are automatically updated when actions are executed.
 
 ---
 
-## 🟢 Automatic Relay State Tracking
+## � IPX800 V5 I/O Structure
+
+The IPX800 V5 API returns I/O elements in a specific order:
+
+- **Elements 0-7**: Relay commands (the 8 controllable relays)
+- **Elements 8-15**: Relay states (read-only, not used by this module)
+- **Elements 16-23**: Digital inputs (8 inputs for monitoring)
+
+The module automatically detects and separates these elements:
+- **Relays** are available in actions (ON/OFF/Toggle) and feedbacks
+- **Digital inputs** are available in feedbacks only (monitoring)
+
+---
+
+## �🟢 Automatic Relay State Tracking
 
 After every relay command (ON, OFF, or TOGGLE), the module automatically queries the IPX800 for the real relay state and updates the variable:
 
