@@ -1,27 +1,23 @@
 {
   "name": "companion-module-ipx800",
-  "version": "1.0.0",
-  "main": "main.js",
-  "description": "Control relays of GCE IPX800 V5 via HTTP API.",
-  "author": "Aslak Favreau",
+  "version": "1.0.8",
+  "description": "Companion module for GCE IPX800 V5 (relay control, feedback, automation)",
   "license": "MIT",
+  "type": "commonjs",
+  "author": {
+    "name": "Aslak Favreau",
+    "email": "aslak@evenement-soe.com"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AslakFAVREAU/IPX800-Companion.git"
+    "url": "https://github.com/AslakFAVREAU/IPX800-Companion.git"
   },
   "bugs": {
     "url": "https://github.com/AslakFAVREAU/IPX800-Companion/issues"
   },
   "homepage": "https://github.com/AslakFAVREAU/IPX800-Companion#readme",
-  "scripts": {
-    "format": "prettier -w ."
-  },
   "dependencies": {
     "@companion-module/base": "^1.13.0",
     "node-fetch": "^2.6.7"
-  },
-  "devDependencies": {
-    "prettier": "^2.8.0",
-    "tar": "^7.5.1"
   }
 }
