@@ -1,6 +1,6 @@
 {
   "name": "companion-module-ipx800",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Companion module for GCE IPX800 V5 (relay control, feedback, automation)",
   "license": "MIT",
   "type": "commonjs",
