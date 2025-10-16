@@ -58,9 +58,9 @@ module.exports = async function (self) {
 		}
 	}
 
-	// Polling régulier toutes les 500ms
+	// Polling régulier toutes les 10ms
 	if (!self._ioPollInterval) {
-		self._ioPollInterval = setInterval(pollIOStates, 500)
+		self._ioPollInterval = setInterval(pollIOStates, 10)
 	}
 	await pollIOStates()
 
