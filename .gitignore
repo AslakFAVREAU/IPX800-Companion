@@ -36,3 +36,6 @@ Thumbs.db
 # Dev files copied to companion/ folder (for local testing only)
 companion/*.js
 !companion/manifest.json
+
+# Template documentation (for reference only, not part of the module)
+COMPANION-MODULE-TEMPLATE.md
